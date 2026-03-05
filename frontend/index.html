@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AGENT CREATOR — Next-Generation AI Agent Studio</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Header ─────────────────────────────────────────────────── -->
+  <header>
+    <div class="header-brand">
+      <span class="header-title">⬡ AGENT CREATOR</span>
+      <span class="header-subtitle">NEXT-GENERATION AI AGENT STUDIO</span>
+    </div>
+    <div class="header-status">
+      <span class="status-dot"></span>
+      <span id="hdr-status">SYSTEM ONLINE</span>
+    </div>
+  </header>
+
+  <!-- ── Body ───────────────────────────────────────────────────── -->
+  <div class="body">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-label">Agents</span>
+        <button id="btn-new-agent">+ NEW</button>
+      </div>
+      <div id="agent-list">
+        <div class="empty-state" id="sidebar-empty">
+          <span class="empty-icon">◌</span>
+          <span class="empty-text">NO AGENTS YET</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+
+      <!-- Empty state -->
+      <div class="empty-state" id="main-empty">
+        <span class="empty-icon">⬡</span>
+        <span class="empty-text">SELECT OR CREATE AN AGENT</span>
+        <span class="text-muted" style="font-size:.72rem">Next-generation adaptive agents live here</span>
+      </div>
+
+      <!-- Agent panel -->
+      <div id="agent-panel" class="hidden">
+
+        <div class="panel-header">
+          <div>
+            <div class="panel-title" id="panel-agent-name">Agent</div>
+            <div class="panel-id" id="panel-agent-id"></div>
+          </div>
+          <div class="panel-actions">
+            <button class="btn btn-secondary" id="btn-refresh-agent">↻ Refresh</button>
+            <button class="btn btn-danger" id="btn-delete-agent">✕ Delete</button>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab active" data-tab="design">DESIGN</button>
+          <button class="tab" data-tab="behavior">BEHAVIOR</button>
+          <button class="tab" data-tab="memory">MEMORY</button>
+          <button class="tab" data-tab="deploy">DEPLOY</button>
+        </div>
+
+        <!-- ── DESIGN tab ──────────────────────────────────────── -->
+        <div class="tab-content active" id="tab-design">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" id="design-name" placeholder="Agent name" />
+            </div>
+            <div class="form-group">
+              <label>Archetype</label>
+              <select id="design-archetype">
+                <option value="explorer">🧭 Explorer</option>
+                <option value="guardian">🛡 Guardian</option>
+                <option value="synthesizer">⚗️ Synthesizer</option>
+                <option value="oracle">🔮 Oracle</option>
+                <option value="executor">⚡ Executor</option>
+                <option value="collaborator">🤝 Collaborator</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label>Description</label>
+              <input type="text" id="design-description" placeholder="What does this agent do?" />
+            </div>
+            <div class="form-group full">
+              <label>System Prompt</label>
+              <textarea id="design-system-prompt" rows="4" placeholder="Define the agent's core instructions and persona..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Ecosystem Tags (comma-separated)</label>
+              <input type="text" id="design-tags" placeholder="analytics, ops, coding" />
+            </div>
+            <div class="form-group">
+              <label>Spawning</label>
+              <div style="display:flex; gap:14px; align-items:center; margin-top:4px;">
+                <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:.78rem;cursor:pointer;">
+                  <input type="checkbox" id="design-can-spawn" style="accent-color:var(--accent-green);" />
+                  Can spawn children
+                </label>
+                <div style="display:flex;align-items:center;gap:6px;font-size:.72rem;">
+                  <span class="text-muted">Max:</span>
+                  <input type="number" id="design-max-children" value="3" min="0" max="20"
+                         style="width:60px;padding:4px 6px;" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group full">
+              <label>Capabilities</label>
+              <div class="capabilities-grid" id="cap-grid"></div>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="btn-save-design">💾 Save Agent</button>
+            <span id="design-status" class="text-muted" style="font-size:.7rem;"></span>
+          </div>
+        </div>
+
+        <!-- ── BEHAVIOR tab ────────────────────────────────────── -->
+        <div class="tab-content" id="tab-behavior">
+          <div class="section-card">
+            <h3>Behavior Profile — Generation <span id="beh-gen">0</span></h3>
+            <div id="trait-sliders"></div>
+          </div>
+
+          <!-- Run Agent -->
+          <div class="run-panel">
+            <h3>▶ Run Agent</h3>
+            <div class="run-input-row">
+              <input type="text" id="run-input" placeholder="Enter instruction for the agent..." />
+              <button class="btn btn-primary" id="btn-run">Run</button>
+            </div>
+            <div id="run-output"></div>
+            <div id="run-meta" class="run-meta hidden"></div>
+          </div>
+
+          <!-- Adapt -->
+          <div class="adapt-panel">
+            <h3>⚙ Adapt Behavior</h3>
+            <div class="adapt-buttons">
+              <button class="btn btn-secondary" data-feedback='{"positive":1.0}'>👍 Positive</button>
+              <button class="btn btn-secondary" data-feedback='{"negative":1.0}'>👎 Negative</button>
+              <button class="btn btn-secondary" data-feedback='{"curiosity":0.1}'>↑ Curiosity</button>
+              <button class="btn btn-secondary" data-feedback='{"curiosity":-0.1}'>↓ Curiosity</button>
+              <button class="btn btn-secondary" data-feedback='{"caution":0.1}'>↑ Caution</button>
+              <button class="btn btn-secondary" data-feedback='{"creativity":0.1}'>↑ Creativity</button>
+              <button class="btn btn-secondary" data-feedback='{"precision":0.1}'>↑ Precision</button>
+              <button class="btn btn-secondary" data-feedback='{"autonomy":0.1}'>↑ Autonomy</button>
+              <button class="btn btn-secondary" data-feedback='{"empathy":0.1}'>↑ Empathy</button>
+            </div>
+            <div class="adapt-msg" id="adapt-msg"></div>
+          </div>
+
+          <!-- Spawn child -->
+          <div class="run-panel mt16" id="spawn-panel">
+            <h3>🧬 Spawn Child Agent</h3>
+            <div class="run-input-row">
+              <input type="text" id="spawn-task" placeholder="Describe the child agent's task..." />
+              <button class="btn btn-purple" id="btn-spawn">Spawn</button>
+            </div>
+            <div id="spawn-msg" class="adapt-msg"></div>
+          </div>
+        </div>
+
+        <!-- ── MEMORY tab ──────────────────────────────────────── -->
+        <div class="tab-content" id="tab-memory">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <span class="text-muted" style="font-size:.72rem;">Living memory — persists across runs</span>
+            <button class="btn btn-secondary" id="btn-refresh-memory">↻ Refresh</button>
+          </div>
+
+          <div class="memory-section">
+            <h3>Short-term  <span id="st-count" class="text-green">(0)</span></h3>
+            <div id="st-memory"></div>
+          </div>
+          <div class="memory-section">
+            <h3>Long-term Knowledge  <span id="lt-count" class="text-green">(0)</span></h3>
+            <div id="lt-memory"></div>
+          </div>
+          <div class="memory-section">
+            <h3>Episodic  <span id="ep-count" class="text-green">(0)</span></h3>
+            <div id="ep-memory"></div>
+          </div>
+        </div>
+
+        <!-- ── DEPLOY tab ──────────────────────────────────────── -->
+        <div class="tab-content" id="tab-deploy">
+          <div class="deploy-card">
+            <h3>🚀 Deploy Agent</h3>
+            <div class="form-group">
+              <label>Environment</label>
+              <select id="deploy-env">
+                <option value="development">Development</option>
+                <option value="staging">Staging</option>
+                <option value="production">Production</option>
+                <option value="sandbox">Sandbox</option>
+              </select>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">
+              <div class="form-group">
+                <label>Replicas</label>
+                <input type="number" id="deploy-replicas" value="1" min="1" max="10" />
+              </div>
+              <div class="form-group">
+                <label>Max Req/Min</label>
+                <input type="number" id="deploy-rpm" value="60" min="1" />
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-primary" id="btn-deploy">⚡ Deploy</button>
+              <button class="btn btn-danger hidden" id="btn-undeploy">✕ Undeploy</button>
+            </div>
+          </div>
+
+          <div class="deploy-status-box hidden" id="deploy-status-box">
+            <h4>Deployment Status</h4>
+            <div class="deploy-row"><span>ID</span><span id="dep-id" class="text-muted"></span></div>
+            <div class="deploy-row"><span>Status</span><span id="dep-status" class="text-green"></span></div>
+            <div class="deploy-row"><span>Environment</span><span id="dep-env"></span></div>
+            <div class="deploy-row"><span>Replicas</span><span id="dep-replicas"></span></div>
+            <div class="deploy-row"><span>Deployed at</span><span id="dep-time" class="text-muted"></span></div>
+            <div class="deploy-row"><span>Endpoint</span><span id="dep-endpoint" class="deploy-endpoint"></span></div>
+          </div>
+        </div>
+
+      </div><!-- /agent-panel -->
+    </div><!-- /main -->
+  </div><!-- /body -->
+</div><!-- /app -->
+
+<div id="toast"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
