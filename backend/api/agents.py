@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, status
 
@@ -40,7 +40,7 @@ async def list_agents() -> list[Agent]:
 @router.post("", response_model=Agent, status_code=status.HTTP_201_CREATED)
 async def create_agent(config: AgentConfig) -> Agent:
     agent_id = str(uuid.uuid4())
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     agent = Agent(
         id=agent_id,
         config=config,
@@ -69,7 +69,7 @@ async def update_agent(agent_id: str, config: AgentConfig) -> Agent:
     # Invalidate runtime so it is re-created with the new config
     storage.agent_runtimes.pop(agent_id, None)
 
-    updated = agent.model_copy(update={"config": config, "updated_at": datetime.utcnow()})
+    updated = agent.model_copy(update={"config": config, "updated_at": datetime.now(timezone.utc)})
     storage.agents_db[agent_id] = updated
     return updated
 
@@ -97,7 +97,7 @@ async def run_agent(agent_id: str, request: AgentRunRequest) -> AgentResponse:
     # Promote draft → active on first run
     if agent.status == "draft":
         storage.agents_db[agent_id] = agent.model_copy(
-            update={"status": "active", "updated_at": datetime.utcnow()}
+            update={"status": "active", "updated_at": datetime.now(timezone.utc)}
         )
 
     return runtime.run(input=request.input, context=request.context)
@@ -119,7 +119,7 @@ async def adapt_agent(agent_id: str, request: AgentAdaptRequest) -> dict:
     storage.agents_db[agent_id] = agent.model_copy(
         update={
             "config": updated_config,
-            "updated_at": datetime.utcnow(),
+            "updated_at": datetime.now(timezone.utc),
             "evolution_generation": runtime._generation,
         }
     )
@@ -188,7 +188,7 @@ async def spawn_child_agent(agent_id: str, request: AgentSpawnRequest) -> Agent:
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     child_agent = Agent(
         id=child_runtime.agent_id,
         config=child_runtime.config,

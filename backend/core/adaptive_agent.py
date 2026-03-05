@@ -1,7 +1,7 @@
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from backend.core.agent_memory import AgentMemory
@@ -136,7 +136,9 @@ class AdaptiveAgent:
 
         # Global positive feedback — amplify current tendencies
         if "positive" in feedback:
-            strength = float(feedback["positive"]) * 0.05
+            raw = feedback["positive"]
+            # Accept float strength OR a list of reason strings (each item = 0.1 strength)
+            strength = (len(raw) * 0.1 if isinstance(raw, list) else float(raw)) * 0.05
             for trait in trait_names:
                 if trait not in changes:
                     old_val = self.behavior_profile.get(trait, 0.5)
@@ -148,7 +150,9 @@ class AdaptiveAgent:
 
         # Global negative feedback — nudge traits toward neutral 0.5
         if "negative" in feedback:
-            strength = float(feedback["negative"]) * 0.05
+            raw = feedback["negative"]
+            # Accept float strength OR a list of reason strings (each item = 0.1 strength)
+            strength = (len(raw) * 0.1 if isinstance(raw, list) else float(raw)) * 0.05
             for trait in trait_names:
                 if trait not in changes:
                     old_val = self.behavior_profile.get(trait, 0.5)
@@ -162,7 +166,7 @@ class AdaptiveAgent:
             self._generation += 1
             self._evolution_history.append(
                 BehaviorEvent(
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     event_type="adapt",
                     delta=changes,
                     generation=self._generation,
@@ -230,7 +234,7 @@ class AdaptiveAgent:
         self._children.append(child_id)
         self._evolution_history.append(
             BehaviorEvent(
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 event_type="spawn",
                 delta={"child_id": child_id, "task": task[:100]},
                 generation=self._generation,

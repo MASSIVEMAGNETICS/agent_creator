@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
@@ -26,7 +26,7 @@ async def deploy_agent(request: DeployRequest) -> Deployment:
         raise HTTPException(status_code=404, detail=f"Agent {request.agent_id} not found")
 
     deployment_id = str(uuid.uuid4())
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     deployment = Deployment(
         id=deployment_id,
@@ -76,5 +76,5 @@ async def undeploy(deployment_id: str) -> None:
     agent = storage.agents_db.get(deployment.agent_id)
     if agent and agent.status == "deployed":
         storage.agents_db[deployment.agent_id] = agent.model_copy(
-            update={"status": "active", "updated_at": datetime.utcnow()}
+            update={"status": "active", "updated_at": datetime.now(timezone.utc)}
         )

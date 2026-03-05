@@ -1,7 +1,7 @@
 import time
 from collections import Counter
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 
@@ -20,7 +20,7 @@ class Episode:
     episode_id: str
     summary: str
     items: list[MemoryItem]
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     tags: list[str] = field(default_factory=list)
 
 

@@ -120,5 +120,4 @@ No API keys. No external services. Fully self-contained.
 | ⚗️ **Synthesizer** | High creativity, integrates cross-domain patterns |
 | 🔮 **Oracle** | High precision, predictive analysis |
 | ⚡ **Executor** | High autonomy, action-oriented |
-| 🤝 **Collaborator** | High empathy, coordination-focused |
-A next gen applifcation that creates edits and deploys a new kinda agent 
+| 🤝 **Collaborator** | High empathy, coordination-focused | 

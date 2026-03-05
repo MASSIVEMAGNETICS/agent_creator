@@ -1,5 +1,5 @@
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -40,8 +40,8 @@ class Agent(BaseModel):
     id: str
     config: AgentConfig
     status: str = "draft"  # "draft", "active", "deployed", "archived"
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     evolution_generation: int = 0
     parent_agent_id: Optional[str] = None
     child_agent_ids: list[str] = Field(default_factory=list)
