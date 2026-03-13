@@ -11,7 +11,7 @@ external dependencies beyond the Python standard library.
 import random
 import uuid
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import ClassVar, Optional
 
 
 # ---------------------------------------------------------------------------
@@ -39,19 +39,16 @@ class DigitalAgent:
     fitness_score: float = 0.0
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
-    DEFAULT_TRAITS: dict[str, float] = field(
-        default_factory=lambda: {
-            "curiosity":    0.5,
-            "caution":      0.5,
-            "creativity":   0.5,
-            "precision":    0.5,
-            "autonomy":     0.5,
-            "empathy":      0.5,
-            "adaptability": 0.5,
-            "resilience":   0.5,
-        },
-        repr=False,
-    )
+    DEFAULT_TRAITS: ClassVar[dict[str, float]] = {
+        "curiosity":    0.5,
+        "caution":      0.5,
+        "creativity":   0.5,
+        "precision":    0.5,
+        "autonomy":     0.5,
+        "empathy":      0.5,
+        "adaptability": 0.5,
+        "resilience":   0.5,
+    }
 
     def __post_init__(self) -> None:
         for trait, default_val in self.DEFAULT_TRAITS.items():
